@@ -82,88 +82,56 @@
 </section>
 
 <script>
-    document.getElementById('form-login-directo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const usuario = document.getElementById('login-user').value;
-        const clave = document.getElementById('login-pass').value;
-        const rolSeleccionado = document.getElementById('login-rol').value;
-
-        try {
-            // Conexión directa al backend en Python (app.py)
-            const res = await fetch("http://localhost:5000/api/login", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario, clave })
-            });
-            const data = await res.json();
-
-            if (res.ok && data.valido) {
-                // Almacenar datos de sesión validados por PostgreSQL en el navegador
-                localStorage.setItem('usuario_nombre', data.nombre);
-                
-                // Forzamos que guarde el rol seleccionado para mantener consistencia con los menús
-                localStorage.setItem('usuario_rol', rolSeleccionado);
-                localStorage.setItem('usuario_role_local', rolSeleccionado);
-                
-                // Guardar R.U por defecto si es cliente pepe
-                if(usuario.toLowerCase() === 'pedro' || usuario.toLowerCase() === 'pepe') {
-                    localStorage.setItem('usuario_ru', '129650');
-                }
-
-                // Salto directo al menú unificado
-                window.location.href = "menu.html";
-            } else {
-                alert(data.mensaje || "Credenciales inválidas. Intente nuevamente.");
-            }
-        } catch (error) {
-            alert("Error: Asegúrate de que tu backend app.py esté corriendo en la consola.");
-        }
-    });
-    let captchaCorrecto = 0;
-
-// Cargar captcha al abrir la página
-function cargarCaptcha() {
-    fetch('http://192.168.0.60:5000/api/captcha')
-    .then(res => res.json())
-    .then(data => {
+let captchaCorrecto = 0;
+const API_URL = "https://web-production-c723d.up.railway.app";
+async function cargarCaptcha() {
+    try {
+        const res = await fetch(`${API_URL}/api/captcha`);
+        const data = await res.json();
         document.getElementById('captcha-pregunta').innerText = `¿${data.num1} + ${data.num2}?`;
         captchaCorrecto = data.resultado;
-    });
+    } catch (e) {
+        document.getElementById('captcha-pregunta').innerText = "Error API";
+    }
 }
 
-// Llamar al cargar la página
 window.onload = cargarCaptcha;
 
-function realizarLogin() {
-    // 1. Validar Captcha
-    const respuesta = parseInt(document.getElementById('captcha-input').value);
-    if (respuesta !== captchaCorrecto) {
+document.getElementById('form-login-directo').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const usuario = document.getElementById('login-user').value;
+    const clave = document.getElementById('login-pass').value;
+    const rolSeleccionado = document.getElementById('login-rol').value;
+    const respuestaUsuario = parseInt(document.getElementById('captcha-input').value);
+
+    if (respuestaUsuario !== captchaCorrecto) {
         alert("¡Error! La suma de seguridad es incorrecta.");
         cargarCaptcha();
         return;
     }
 
-    // 2. Proceso de Login original
-    const usuario = document.getElementById('usuario').value;
-    const clave = document.getElementById('clave').value;
+    try {
+        // ENVIAMOS EL ROL AL BACKEND PARA VALIDAR
+        const res = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario, clave, rol_seleccionado: rolSeleccionado })
+        });
+        const data = await res.json();
 
-    fetch('http://192.168.0.60:5000/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({usuario, clave})
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.valido) {
+        if (res.ok && data.valido) {
             localStorage.setItem('usuario_nombre', data.nombre);
             localStorage.setItem('usuario_rol', data.rol);
-            window.location.href = 'menu.html';
+            window.location.href = "menu.html";
         } else {
-            alert(data.mensaje);
-            cargarCaptcha(); // Recargar captcha tras intento fallido
+            alert(data.mensaje || "Credenciales inválidas o rol incorrecto.");
+            cargarCaptcha();
         }
-    });
-}
+    } catch (error) {
+        alert("Error de conexión con el backend.");
+    }
+});
 </script>
 </body>
 </html>

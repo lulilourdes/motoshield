@@ -58,21 +58,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-motos-activas">
-                            <tr onclick="cargarConsolaEspecifica('Lourdes Serrano', '-21.5284', '-64.7298')">
-                                <td class="fw-bold text-start text-warning ps-4"><i class="bi bi-person-circle"></i> lourdes</td>
-                                <td><span class="badge bg-secondary">GPS-001</span></td>
-                                <td><span class="badge bg-success"><i class="bi bi-broadcast"></i> EN CUMPLIMIENTO</span></td>
-                                <td class="small text-muted">-21.5284, -64.7298</td>
-                                <td><button class="btn btn-xs btn-info py-1 fw-bold text-dark">Monitorear</button></td>
-                            </tr>
-                            <tr onclick="cargarConsolaEspecifica('Juan Carlos', '-21.5342', '-64.7350')">
-                                <td class="fw-bold text-start text-warning ps-4"><i class="bi bi-person-circle"></i> juan carlos</td>
-                                <td><span class="badge bg-secondary">GPS-002</span></td>
-                                <td><span class="badge bg-success"><i class="bi bi-broadcast"></i> EN CUMPLIMIENTO</span></td>
-                                <td class="small text-muted">-21.5342, -64.7350</td>
-                                <td><button class="btn btn-xs btn-info py-1 fw-bold text-dark">Monitorear</button></td>
-                            </tr>
-                        </tbody>
+</tbody>
                     </table>
                 </div>
             </div>
@@ -129,6 +115,57 @@
     </div>
 
     <script>
+        function cargarMotosActivas() {
+
+    fetch("http://localhost:5000/api/motos-activas")
+    .then(res => res.json())
+    .then(datos => {
+
+        const tabla = document.getElementById("tabla-motos-activas");
+
+        tabla.innerHTML = "";
+
+        datos.forEach(m => {
+
+            tabla.innerHTML += `
+            <tr onclick="cargarConsolaEspecifica('${m.nombre}','${m.lat}','${m.lng}')">
+
+                <td class="fw-bold text-start text-warning ps-4">
+                    <i class="bi bi-person-circle"></i>
+                    ${m.nombre}
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        GPS-${m.gps}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-success">
+                        ${m.estado}
+                    </span>
+                </td>
+
+                <td>
+                    ${m.lat}, ${m.lng}
+                </td>
+
+                <td>
+                    <button class="btn btn-info btn-sm">
+                        Monitorear
+                    </button>
+                </td>
+
+            </tr>
+            `;
+
+        });
+
+    })
+    .catch(error => console.log(error));
+
+}
         window.onload = function() {
             const nombreSesion = localStorage.getItem('usuario_nombre') || 'Estudiante';
             let rolSesion = (localStorage.getItem('usuario_rol') || localStorage.getItem('usuario_role_local') || 'cliente').toLowerCase().trim();
@@ -136,10 +173,13 @@
             const esAdmin = rolSesion.includes('admin') || nombreSesion.toLowerCase().includes('admin');
             
             if (esAdmin) {
-                // 1. Mostrar panel superior para el Admin
+
                 document.getElementById('seccion-admin').style.display = 'block';
-                // Ocultar consola inicialmente hasta que seleccione un cliente de la lista
-                document.getElementById('contenedor-consola-iot').style.style = 'none';
+
+                cargarMotosActivas();
+
+                document.getElementById('contenedor-consola-iot').style.display = 'none';
+
                 document.getElementById('moto-propietario').value = "Ninguno - Seleccione una Moto";
             } else {
                 // 2. Si es estudiante, se salta la lista y directo ve su consola
@@ -171,17 +211,60 @@
             consola.value += `[${tiempoActual}] MOTOSHIELD_SERVER: ${mensaje}\n`;
         }
 
-        function transmitirDatos() {
-            const lat = document.getElementById('latitud').value;
-            const lng = document.getElementById('longitud').value;
-            const moto = document.getElementById('moto-propietario').value;
-            const ignicion = document.getElementById('ignicion').value === "1" ? "ENCENDIDO" : "APAGADO";
+       async function transmitirDatos() {
 
-            agregarLog(`Enviando paquete GPRS -> Lat: ${lat} | Lng: ${lng} | Motor: ${ignicion}`);
-            
-            // Aquí pones tu fetch real a tu API en Python de Flask si lo deseas
-            agregarLog(`Respuesta del Backend Flask -> HTTP 200 OK - Geocerca validada para ${moto}.`);
-        }
+    const lat = document.getElementById('latitud').value;
+    const lng = document.getElementById('longitud').value;
+    const moto = document.getElementById('moto-propietario').value;
+    const ignicion = document.getElementById('ignicion').value === "1"
+        ? "Encendido"
+        : "Apagado";
+
+    agregarLog("Transmitiendo datos al servidor Flask...");
+
+    try{
+
+        const respuesta = await fetch(
+            "http://127.0.0.1:5000/api/monitoreo-iot",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+
+                    id_gps:1,
+                    latitud:lat,
+                    longitud:lng,
+                    estado_motor:ignicion
+
+                })
+
+            }
+        );
+
+        const datos = await respuesta.json();
+
+        agregarLog("Servidor respondió correctamente.");
+
+        agregarLog("Estado: " + datos.geocerca);
+
+        agregarLog("Seguridad: " + datos.seguridad);
+
+        agregarLog("Motor: " + datos.motor);
+
+        agregarLog("Batería: " + datos.bateria);
+
+        agregarLog("Coordenadas: " + datos.coordenadas);
+
+    }
+    catch(error){
+
+        agregarLog("ERROR: No fue posible conectar con Flask.");
+
+    }
+
+}
     </script>
 </body>
 </html>

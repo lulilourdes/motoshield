@@ -91,7 +91,7 @@
 
         try {
             // Reutilizaremos el endpoint de tu backend que inserta en 'dispositivos_gps'
-            const respuesta = await fetch('http://localhost:5000/api/productos', {
+            const respuesta = await fetch('https://web-production-c723d.up.railway.app/api/productos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -109,7 +109,7 @@
                 alert("Error al registrar: " + resultado.error);
             }
         } catch (error) {
-            alert("Error de red. Asegúrate de que tu servidor de Python esté corriendo.");
+            alert("Error de conexión con el servidor MotoShield.");
         }
     });
     window.onload = function() {

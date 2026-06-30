@@ -87,39 +87,47 @@
     </div>
 
     <script>
-        document.getElementById('form-moto').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // URL de tu backend en Railway
+    const API_URL = "https://web-production-c723d.up.railway.app";
 
-            // Usamos un RU simulado del cliente activo para asociarlo directamente
-            const ru = "129650"; 
+    document.getElementById('form-moto').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const datos = {
-                ru: ru,
-                id_especificacion: document.getElementById('id-especificacion').value,
-                placa: document.getElementById('placa').value,
-                numero_chasis: document.getElementById('chasis').value,
-                color_predominante: document.getElementById('color').value,
-                anio_modelo: document.getElementById('anio').value
-            };
+        // RU del usuario (por ahora fijo)
+        const ru = "129650";
 
-            try {
-                const res = await fetch("http://localhost:5000/api/motocicletas", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
+        const datos = {
+            ru: ru,
+            id_especificacion: document.getElementById('id-especificacion').value,
+            placa: document.getElementById('placa').value,
+            numero_chasis: document.getElementById('chasis').value,
+            color_predominante: document.getElementById('color').value,
+            anio_modelo: document.getElementById('anio').value
+        };
 
-                const data = await res.json();
-                if (res.ok) {
-                    alert("¡Excelente! Los datos de tu motocicleta han sido insertados de manera exitosa en PostgreSQL.");
-                    window.location.href = "menu.html";
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (err) {
-                alert("No hay comunicación con el backend Python.");
+        try {
+            const res = await fetch(`${API_URL}/api/motocicletas`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datos)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("¡Excelente! Los datos de tu motocicleta fueron registrados correctamente.");
+                window.location.href = "menu.html";
+            } else {
+                alert("Error: " + (data.error || "No se pudo registrar la motocicleta."));
             }
-        });
-    </script>
+
+        } catch (err) {
+            console.error(err);
+            alert("No fue posible conectarse con el servidor MotoShield.");
+        }
+    });
+</script>
 </body>
 </html>

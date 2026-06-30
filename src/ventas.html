@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function cargarGpsDisponibles() {
     const selectGps = document.getElementById('id_gps');
 
-    fetch('http://127.0.0.1:5000/api/obtener-productos')
+    fetch('https://web-production-c723d.up.railway.app/api/obtener-productos')
     .then(res => {
         if (!res.ok) throw new Error("Error en la respuesta del servidor");
         return res.json();
@@ -146,7 +146,7 @@ function procesarVenta(event) {
         monto: parseFloat(monto)
     };
 
-    fetch('http://127.0.0.1:5000/api/registrar-venta', {
+    ffetch('https://web-production-c723d.up.railway.app/api/registrar-venta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
