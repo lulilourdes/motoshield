@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Registrar Servicio GPS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-custom { background-color: #1e293b; border-bottom: 1px solid #334155; }
+        .card-custom { background: #1e293b; border: 1px solid #334155; border-radius: 12px; max-width: 550px; margin: 0 auto; }
+        .form-control, .form-select { background-color: #0f172a !important; color: #f8fafc !important; border: 1px solid #334155 !important; }
+        .form-control:focus, .form-select:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important; }
+        .form-control:disabled, .form-control[readonly] { background-color: #1e293b !important; color: #94a3b8 !important; opacity: 0.7; }
+        .badge-admin { background-color: #ef4444; color: white; font-size: 0.75rem; font-weight: bold; padding: 5px 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card card-custom shadow-lg p-4">
+        <div class="text-center mb-4">
+            <div class="text-success display-5 mb-2">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <h3 class="fw-bold text-white mb-1">Registrar Servicio GPS</h3>
+            <p class="text-muted small">Asigna un dispositivo del almacén a la cuenta de un estudiante de la UAJMS.</p>
+        </div>
+
+        <form id="form-venta" onsubmit="procesarVenta(event)">
+            <div class="mb-3">
+                <label class="form-label small text-muted text-uppercase fw-bold">Dispositivo Hardware (GPS Disponibles)</label>
+                <select id="id_gps" class="form-select" required>
+                    <option value="" disabled selected>Cargando dispositivos disponibles...</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small text-muted text-uppercase fw-bold">Nombre Completo del Estudiante</label>
+                <input type="text" id="estudiante" class="form-control" placeholder="Ej. Lourdes Serrano" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small text-muted text-uppercase fw-bold">R.U. (Registro Universitario)</label>
+                <input type="number" id="ru" class="form-control" placeholder="Ej. 129650" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small text-muted text-uppercase fw-bold">Precio del Servicio (Bs.)</label>
+                <input type="number" id="monto" class="form-control" value="350" readonly>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2 shadow-sm">
+                <i class="bi bi-check-circle-fill me-2"></i>Completar Transacción y Activar GPS
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    cargarGpsDisponibles();
+});
+
+// Función que consulta el endpoint de tu app.py y filtra en vivo
+function cargarGpsDisponibles() {
+    const selectGps = document.getElementById('id_gps');
+
+    fetch('http://127.0.0.1:5000/api/obtener-productos')
+    .then(res => {
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
+        return res.json();
+    })
+    .then(productos => {
+        // Filtramos solo los dispositivos que tienen el estado 'disponible'
+        const disponibles = productos.filter(p => p.estado === 'disponible');
+
+        selectGps.innerHTML = ''; // Limpiar mensaje de carga
+
+        if (disponibles.length === 0) {
+            selectGps.innerHTML = '<option value="" disabled selected>❌ No hay equipos GPS disponibles en almacén</option>';
+            return;
+        }
+
+        // Agregar una opción por cada equipo libre
+        selectGps.innerHTML = '<option value="" disabled selected>-- Seleccione un módulo GPS --</option>';
+        disponibles.forEach(gps => {
+            selectGps.innerHTML += `
+                <option value="${gps.id_gps}">
+                    ID: #${gps.id_gps} | Modelo: ${gps.modelo_iot} (IMEI: ${gps.codigo_imei})
+                </option>
+            `;
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        selectGps.innerHTML = '<option value="" disabled selected>❌ Error al enlazar con app.py (Verificar servidor)</option>';
+    });
+}
+
+function procesarVenta(event) {
+    event.preventDefault();
+
+    const id_gps = document.getElementById('id_gps').value;
+    const estudiante = document.getElementById('estudiante').value;
+    const ru = document.getElementById('ru').value;
+    const monto = document.getElementById('monto').value;
+
+    if (!id_gps) {
+        alert("Por favor, seleccione un dispositivo GPS válido.");
+        return;
+    }
+
+    const payload = {
+        id_gps: parseInt(id_gps),
+        estudiante: estudiante,
+        ru: parseInt(ru),
+        monto: parseFloat(monto)
+    };
+
+    fetch('http://127.0.0.1:5000/api/registrar-venta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+    })
+    .then(data => {
+        alert("¡Transacción completada! Módulo IoT enlazado al perfil del estudiante con éxito.");
+        // Volvemos a recargar para que el GPS ya no aparezca en la lista al ser usado
+        location.reload();
+    })
+    .catch(err => {
+        alert("Ocurrió un inconveniente al registrar la transacción en el servidor.");
+    });
+}
+</script>
+</body>
+</html>

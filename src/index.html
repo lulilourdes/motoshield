@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Sistema de Rastreo Satelital IoT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-section { min-height: 100vh; display: flex; align-items: center; background: linear-gradient(135deg, #0f172a 40%, #1e1b4b 100%); position: relative; overflow: hidden; }
+        .hero-section::before { content: ''; position: absolute; width: 300px; height: 300px; background: #3b82f6; filter: blur(150px); top: 10%; right: 10%; opacity: 0.15; }
+        .card-feature { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(10px); transition: transform 0.3s; }
+        .card-feature:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body>
+
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-primary px-3 py-2 rounded-pill fw-bold text-uppercase tracking-wider">Proyecto de Innovación IoT</span>
+                </div>
+                <h1 class="display-4 fw-bold mb-3">MotoShield</h1>
+                <h3 class="text-white-50 mb-4">Modelo y prototipo de rastreo satelital para la seguridad de motocicletas universitarias</h3>
+                <p class="lead text-slate-400 mb-5" style="color: #cbd5e1;">
+                    Una solución tecnológica de Ingeniería Informática diseñada para mitigar el robo de vehículos de dos ruedas en la ciudad de Tarija y proteger el patrimonio de la comunidad estudiantil de la UAJMS mediante algoritmos automatizados de geocercas en tiempo real.
+                </p>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card bg-dark bg-opacity-50 text-white p-4 mx-auto shadow-lg border border-secondary" style="max-width: 450px; backdrop-filter: blur(10px);">
+                    <h3 class="text-center fw-bold mb-4 text-primary">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Iniciar Sesión
+                    </h3>
+                    
+                    <form id="form-login-directo">
+                        <div class="mb-3 text-start">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Tipo de Cuenta</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary border-secondary text-white"><i class="bi bi-person-badge-fill"></i></span>
+                                <select class="form-select bg-dark text-white border-secondary" id="login-rol" required>
+                                    <option value="cliente" selected>Estudiante / Usuario Común</option>
+                                    <option value="administrador">Administrador Central</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Nombre de Usuario</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary border-secondary text-white"><i class="bi bi-person-fill"></i></span>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="login-user" required placeholder="Ej. pedro o admin">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 text-start">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary border-secondary text-white"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" class="form-control bg-dark text-white border-secondary" id="login-pass" required placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <div class="mb-3 p-3 bg-dark border border-secondary rounded">
+                            <label class="form-label small text-info fw-bold">Verificación de Seguridad:</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <span id="captcha-pregunta" class="h5 mb-0 text-white">Cargando...</span>
+                                <input type="number" id="captcha-input" class="form-control w-50" placeholder="Resultado" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-lg py-2">
+                            Ingresar al Sistema <i class="bi bi-box-arrow-in-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('form-login-directo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuario = document.getElementById('login-user').value;
+        const clave = document.getElementById('login-pass').value;
+        const rolSeleccionado = document.getElementById('login-rol').value;
+
+        try {
+            // Conexión directa al backend en Python (app.py)
+            const res = await fetch("http://localhost:5000/api/login", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, clave })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.valido) {
+                // Almacenar datos de sesión validados por PostgreSQL en el navegador
+                localStorage.setItem('usuario_nombre', data.nombre);
+                
+                // Forzamos que guarde el rol seleccionado para mantener consistencia con los menús
+                localStorage.setItem('usuario_rol', rolSeleccionado);
+                localStorage.setItem('usuario_role_local', rolSeleccionado);
+                
+                // Guardar R.U por defecto si es cliente pepe
+                if(usuario.toLowerCase() === 'pedro' || usuario.toLowerCase() === 'pepe') {
+                    localStorage.setItem('usuario_ru', '129650');
+                }
+
+                // Salto directo al menú unificado
+                window.location.href = "menu.html";
+            } else {
+                alert(data.mensaje || "Credenciales inválidas. Intente nuevamente.");
+            }
+        } catch (error) {
+            alert("Error: Asegúrate de que tu backend app.py esté corriendo en la consola.");
+        }
+    });
+    let captchaCorrecto = 0;
+
+// Cargar captcha al abrir la página
+function cargarCaptcha() {
+    fetch('http://192.168.0.60:5000/api/captcha')
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('captcha-pregunta').innerText = `¿${data.num1} + ${data.num2}?`;
+        captchaCorrecto = data.resultado;
+    });
+}
+
+// Llamar al cargar la página
+window.onload = cargarCaptcha;
+
+function realizarLogin() {
+    // 1. Validar Captcha
+    const respuesta = parseInt(document.getElementById('captcha-input').value);
+    if (respuesta !== captchaCorrecto) {
+        alert("¡Error! La suma de seguridad es incorrecta.");
+        cargarCaptcha();
+        return;
+    }
+
+    // 2. Proceso de Login original
+    const usuario = document.getElementById('usuario').value;
+    const clave = document.getElementById('clave').value;
+
+    fetch('http://192.168.0.60:5000/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({usuario, clave})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.valido) {
+            localStorage.setItem('usuario_nombre', data.nombre);
+            localStorage.setItem('usuario_rol', data.rol);
+            window.location.href = 'menu.html';
+        } else {
+            alert(data.mensaje);
+            cargarCaptcha(); // Recargar captcha tras intento fallido
+        }
+    });
+}
+</script>
+</body>
+</html>
+

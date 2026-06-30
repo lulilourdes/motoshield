@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Control de Inventario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+<nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-5 mb-4">
+            <div class="card p-4 card-custom bg-white">
+                <h4 class="fw-bold mb-3 text-dark"><i class="bi bi-plus-square-fill text-primary me-2"></i>Registro de Módulos IoT</h4>
+                <p class="text-muted small">Panel de Administración - UAJMS 2026</p>
+                <hr>
+                <form id="form-registro">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Modelo del Dispositivo IoT:</label>
+                        <input type="text" class="form-control" id="modelo_iot" placeholder="Ej. Neo-6M, SIM808" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Código Único IMEI del Hardware:</label>
+                        <input type="text" class="form-control" id="codigo_imei" placeholder="Ej. 863402048574632" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Registrar Dispositivo en Almacén</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-7 mb-4">
+            <div class="card p-4 card-custom bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold m-0"><i class="bi bi-table me-2 text-success"></i>Módulos en Almacén</h4>
+                    <button class="btn btn-success btn-sm fw-bold" onclick="cargarDispositivos()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                </div>
+                <hr>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Modelo</th>
+                                <th>IMEI</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-productos">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para obtener dispositivos desde la API en Flask
+    window.addEventListener('DOMContentLoaded', () => {
+    const rol = localStorage.getItem('usuario_rol');
+    
+    // Si es un usuario común, le escondemos el formulario para que no registre hardware nuevo
+    if (rol === 'cliente' || rol === 'comun') {
+        const formulario = document.querySelector('form'); // Selecciona tu formulario de registro
+        if (formulario) {
+            formulario.style.display = 'none'; 
+        }
+        // Opcional: puedes poner un mensaje que diga "Vista de solo lectura para Clientes"
+    }
+});
+    async function cargarDispositivos() {
+        try {
+            const respuesta = await fetch('http://localhost:5000/api/obtener-productos');
+            const productos = await respuesta.json();
+            const tbody = document.getElementById('tabla-productos');
+            tbody.innerHTML = '';
+
+            productos.forEach(p => {
+                const badgeColor = p.estado === 'disponible' ? 'bg-success' : 'bg-secondary';
+                tbody.innerHTML += `
+                    <tr>
+                        <td># ${p.id_gps}</td>
+                        <td><span class="badge bg-primary">${p.modelo_iot}</span></td>
+                        <td><code>${p.codigo_imei}</code></td>
+                        <td><span class="badge ${badgeColor}">${p.estado.toUpperCase()}</span></td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error("Error al cargar inventario:", error);
+        }
+    }
+
+    // Evento para guardar nuevos productos
+    document.getElementById('form-registro').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const modelo = document.getElementById('modelo_iot').value;
+        const imei = document.getElementById('codigo_imei').value;
+
+        try {
+            const respuesta = await fetch('http://localhost:5000/api/productos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modelo_iot: modelo, codigo_imei: imei })
+            });
+
+            if (respuesta.ok) {
+                alert("¡Módulo registrado de manera exitosa!");
+                document.getElementById('form-registro').reset();
+                cargarDispositivos(); // Recarga la tabla de inmediato sin refrescar página
+            }
+        } catch (error) {
+            alert("Error de red al conectar con Python.");
+        }
+    });
+
+    // Cargar datos automáticamente al abrir la pantalla
+    window.onload = cargarDispositivos;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

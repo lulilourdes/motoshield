@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Módulo de Compras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .btn-primary { background-color: #0d6efd; border: none; }
+        .btn-primary:hover { background-color: #0b5ed7; }
+    </style>
+</head>
+<body>
+
+<nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4 card-custom bg-white">
+                <div class="text-center mb-4">
+                    <div class="display-4 text-primary"><i class="bi bi-cart-check-fill"></i></div>
+                    <h3 class="fw-bold mt-2">Registrar Adquisición de Hardware</h3>
+                    <p class="text-muted small">Ingresa el lote de nuevos módulos GPS adquiridos para el proyecto MotoShield.</p>
+                </div>
+                <hr>
+
+                <form id="form-compra">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Modelo de Hardware IoT</label>
+                        <select class="form-select" id="modelo_iot_hardware" required>
+                            <option value="" disabled selected>Selecciona el modelo...</option>
+                            <option value="SIM808">SIM808 (GPRS/GPS)</option>
+                            <option value="Neo-6M">Neo-6M (Solo GPS)</option>
+                            <option value="A7 IOT">A7 (GSM/GPRS/GPS)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Código Único IMEI del Dispositivo</label>
+                        <input type="text" class="form-control" id="codigo_imei" placeholder="Ej. 863402048574632" required>
+                        <div class="form-text">Debe ser el número de serie de fábrica de 15 dígitos.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Costo de Adquisición (Bs.)</label>
+                        <input type="number" class="form-control" id="costo_bs" value="180" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-3">
+                        <i class="bi bi-plus-circle-fill me-2"></i> Ingresar Almacén
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('form-compra').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const modelo = document.getElementById('modelo_iot_hardware').value;
+        const imei = document.getElementById('codigo_imei').value;
+
+        try {
+            // Reutilizaremos el endpoint de tu backend que inserta en 'dispositivos_gps'
+            const respuesta = await fetch('http://localhost:5000/api/productos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    modelo_iot: modelo,
+                    codigo_imei: imei
+                })
+            });
+
+            const resultado = await respuesta.json();
+
+            if (respuesta.status === 201 || resultado.status === 'ok') {
+                alert("¡Compra registrada con éxito! El dispositivo se añadió al inventario en PostgreSQL.");
+                document.getElementById('form-compra').reset();
+            } else {
+                alert("Error al registrar: " + resultado.error);
+            }
+        } catch (error) {
+            alert("Error de red. Asegúrate de que tu servidor de Python esté corriendo.");
+        }
+    });
+    window.onload = function() {
+    const rol = localStorage.getItem('usuario_rol');
+
+    // 1. Protección de seguridad: Si no ha iniciado sesión, al login
+    if (!rol) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    // 2. Restricción para usuarios comunes: Bloquear acceso a Compras
+    if (rol === 'cliente' || rol === 'comun') {
+        alert("Acceso denegado: No tienes permisos para gestionar la adquisición de hardware.");
+        window.location.href = "menu.html"; // Lo redirige automáticamente al menú a salvo
+    }
+};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

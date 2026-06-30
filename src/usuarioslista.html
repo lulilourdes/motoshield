@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Control de Usuarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-custom { background-color: #1e293b; border-bottom: 1px solid #334155; }
+        .card-custom { background: #1e293b; border: 1px solid #334155; border-radius: 8px; }
+        .table-custom { background-color: #1e293b; color: #f8fafc; margin-bottom: 0; }
+        .table-custom th { background-color: #1e293b; color: #3b82f6; border-bottom: 2px solid #334155; padding: 15px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .table-custom td { border-bottom: 1px solid #2d3748; padding: 15px; color: #cbd5e1; vertical-align: middle; }
+        .table-hover tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+    </style>
+</head>
+<body>
+
+<nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-white mb-1">
+                <i class="bi bi-people text-warning me-2"></i>Panel de Gestión de Usuarios
+            </h2>
+            <p class="text-muted small mb-0">Lista oficial de cuentas autorizadas con acceso al sistema MotoShield UAJMS.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+                <i class="bi bi-person-plus-fill me-2"></i>Crear Nuevo Usuario
+            </button>
+        </div>
+    </div>
+
+    <div class="card card-custom shadow-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th class="ps-4" style="width: 15%;">ID Usuario</th>
+                            <th style="width: 35%;">Nombre Completo</th>
+                            <th style="width: 30%;">Nombre de Usuario (Login)</th>
+                            <th class="pe-4" style="width: 20%;">Rol Asignado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-usuarios-body">
+                        <tr>
+                            <td class="ps-4 text-muted">#2</td>
+                            <td>pepe</td>
+                            <td><code>pedro</code></td>
+                            <td class="pe-4"><span class="badge bg-info text-dark text-lowercase rounded-pill px-3">cliente</span></td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4 text-muted">#1</td>
+                            <td>Administrador Central</td>
+                            <td><code>admin</code></td>
+                            <td class="pe-4"><span class="badge bg-danger text-lowercase rounded-pill px-3">administrador</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-white" style="background: #1e293b; border: 1px solid #334155;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold" id="modalUsuarioLabel">Registrar Cuenta - MotoShield</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+    <div class="mb-3">
+        <label class="form-label small text-muted text-uppercase fw-bold">Asignar Rol del Sistema</label>
+        <select id="nuevo-rol" class="form-select bg-dark text-white border-secondary" onchange="alternarCamposPorRol()">
+            <option value="cliente" selected>Estudiante / Usuario Común</option>
+            <option value="administrador">Administrador Central</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label small text-muted fw-bold">Nombre Completo</label>
+        <input type="text" id="nuevo-nombre" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Lourdes Serrano" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label small text-muted fw-bold">Nombre de Usuario (Para Login)</label>
+        <input type="text" id="nuevo-username" class="form-control bg-dark text-white border-secondary" placeholder="Ej. lourdes123" required>
+    </div>
+
+    <div class="mb-3" id="contenedor-ru">
+        <label class="form-label small text-warning fw-bold">R.U. (Registro Universitario UAJMS)</label>
+        <input type="number" id="nuevo-ru" class="form-control bg-dark text-white border-warning" placeholder="Ej. 129650">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label small text-muted fw-bold">Contraseña de Acceso</label>
+        <input type="password" id="nuevo-password" class="form-control bg-dark text-white border-secondary" placeholder="••••••••" required>
+    </div>
+
+    <div class="mb-3 p-3 bg-dark border border-secondary rounded">
+        <label class="form-label small text-info fw-bold">Verificación de Seguridad:</label>
+        <div class="d-flex align-items-center gap-3">
+            <span id="captcha-pregunta" class="h5 mb-0 text-white">Cargando...</span>
+            <input type="number" id="captcha-input" class="form-control w-50 bg-dark text-white border-secondary" placeholder="Resultado" required>
+        </div>
+    </div>
+</div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" onclick="guardarNuevoUsuario()" class="btn btn-success fw-bold px-3">Confirmar Registro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+let captchaCorrecto = 0;
+
+// Función para cargar el Captcha desde el servidor
+function cargarCaptcha() {
+    fetch('http://192.168.0.60:5000/api/captcha')
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('captcha-pregunta').innerText = `¿Cuánto es ${data.num1} + ${data.num2}?`;
+        captchaCorrecto = data.resultado;
+    })
+    .catch(err => console.log("Error al cargar Captcha"));
+}
+
+// Cargar usuarios al iniciar y configurar el evento del modal
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Cargar Usuarios
+    fetch('http://192.168.0.60:5000/api/obtener-usuarios') 
+    .then(res => { if(res.ok) return res.json(); throw new Error(); })
+    .then(data => {
+        const tbody = document.getElementById('tabla-usuarios-body');
+        tbody.innerHTML = ''; 
+        data.forEach(user => {
+            const badgeColor = user.rol === 'administrador' ? 'bg-danger' : 'bg-info text-dark';
+            tbody.innerHTML += `
+                <tr>
+                    <td class="ps-4 text-muted">#${user.id_usuario}</td>
+                    <td>${user.nombre}</td>
+                    <td><code>${user.usuario}</code></td>
+                    <td class="pe-4"><span class="badge ${badgeColor} text-lowercase rounded-pill px-3">${user.rol}</span></td>
+                </tr>
+            `;
+        });
+    });
+
+    // 2. Cargar captcha cada vez que se abre el modal
+    const modal = document.getElementById('modalNuevoUsuario');
+    modal.addEventListener('show.bs.modal', cargarCaptcha);
+});
+
+function alternarCamposPorRol() {
+    const rol = document.getElementById('nuevo-rol').value;
+    const contenedorRU = document.getElementById('contenedor-ru');
+    contenedorRU.style.display = (rol === 'administrador') ? 'none' : 'block';
+}
+
+function guardarNuevoUsuario() {
+    // 1. Validar Captcha primero
+    const respuestaUsuario = parseInt(document.getElementById('captcha-input').value);
+    if (respuestaUsuario !== captchaCorrecto) {
+        alert("¡Error de seguridad! La suma es incorrecta.");
+        cargarCaptcha(); // Refrescar para nueva oportunidad
+        return;
+    }
+
+    // 2. Obtener datos
+    const rol = document.getElementById('nuevo-rol').value;
+    const nombre = document.getElementById('nuevo-nombre').value;
+    const usuario = document.getElementById('nuevo-username').value;
+    const clave = document.getElementById('nuevo-password').value;
+    const ru = document.getElementById('nuevo-ru').value;
+
+    if (!nombre || !usuario || !clave || (rol === 'cliente' && !ru)) {
+        alert("Por favor, rellene todos los datos obligatorios.");
+        return;
+    }
+
+    const payload = { nombre, usuario, clave, rol };
+
+    // 3. Enviar registro
+    fetch('http://192.168.0.60:5000/api/registrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.ok ? res.json() : Promise.reject())
+    .then(data => {
+        alert("¡Usuario registrado con éxito!");
+        location.reload(); 
+    })
+    .catch(err => {
+        alert("Error al conectar con el servidor app.py.");
+    });
+}
+</script>
+</body>
+</html>
