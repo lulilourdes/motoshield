@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Mi Motocicleta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { background: #1e293b; border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+    <nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card card-custom p-4 rounded-3 shadow">
+                    <div class="text-center mb-4">
+                        <div class="fs-1 text-danger mb-2"><i class="bi bi-bicycle"></i></div>
+                        <h3 class="fw-bold">Registrar Mi Motocicleta</h3>
+                        <p class="text-muted small">Asocia las características oficiales de tu vehículo para el control policial de la UAJMS.</p>
+                    </div>
+
+                    <form id="form-moto">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Modelo de la Moto (Catálogo Maestro)</label>
+                            <select id="id-especificacion" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="1">Pegasus GLX-150 (150cc)</option>
+                                <option value="2">Honda Wave (110cc)</option>
+                                <option value="3">Suzuki GN-125 (125cc)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Placa de Control Boliviana</label>
+                            <input type="text" id="placa" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 5432-ABC" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Número de Chasis (Fines de Seguridad)</label>
+                            <input type="text" id="chasis" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 9HGAA123X..." required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Color Predominante</label>
+                            <input type="text" id="color" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Negro Metálico" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Año del Modelo</label>
+                            <input type="number" id="anio" class="form-control bg-dark text-white border-secondary" value="2025" required>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="menu.html" class="btn btn-outline-secondary w-50">Volver</a>
+                            <button type="submit" class="btn btn-danger w-50 fw-bold">Guardar Vehículo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('form-moto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Usamos un RU simulado del cliente activo para asociarlo directamente
+            const ru = "129650"; 
+
+            const datos = {
+                ru: ru,
+                id_especificacion: document.getElementById('id-especificacion').value,
+                placa: document.getElementById('placa').value,
+                numero_chasis: document.getElementById('chasis').value,
+                color_predominante: document.getElementById('color').value,
+                anio_modelo: document.getElementById('anio').value
+            };
+
+            try {
+                const res = await fetch("http://localhost:5000/api/motocicletas", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("¡Excelente! Los datos de tu motocicleta han sido insertados de manera exitosa en PostgreSQL.");
+                    window.location.href = "menu.html";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (err) {
+                alert("No hay comunicación con el backend Python.");
+            }
+        });
+    </script>
+</body>
+</html>

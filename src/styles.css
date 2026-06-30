@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+    --bg-dark: #0f172a;        /* Fondo oscuro maestro para todo el sistema */
+    --card-bg: #1e293b;        /* Fondo para tarjetas, formularios y tablas */
+    --text-main: #f8fafc;      /* Texto principal brillante */
+    --text-muted: #94a3b8;     /* Texto secundario atenuado */
+    --primary: #3b82f6;       /* Color azul corporativo */
+}
+
+body {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-main) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    margin: 0;
+}
+
+/* Contenedores uniformes para todas las pantallas */
+.card-custom {
+    background-color: var(--card-bg) !important;
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+}
+
+/* Estandarización de Tablas en el sistema */
+.table-custom {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-custom th {
+    background-color: #0f172a !important;
+    color: var(--text-main) !important;
+}
+
+.table-custom td {
+    color: var(--text-main) !important;
+    border-bottom-color: #334155 !important;
+}

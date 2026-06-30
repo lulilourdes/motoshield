@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { background: #1e293b; border: 1px solid #334155; transition: transform 0.2s; }
+        .card-custom:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+<nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+    <div class="container my-5 text-center">
+        <h1 class="fw-bold mb-2">Bienvenido/a, <span id="nombre-usuario" class="text-primary">Usuario</span></h1>
+        <p class="text-muted text-uppercase small tracking-wider">Nivel de Acceso: <span id="rol-usuario" class="badge bg-secondary">---</span></p>
+        <button onclick="cerrarSesion()" class="btn btn-outline-danger">
+            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+        
+        <hr class="border-secondary my-5">
+
+        <div class="row g-4 justify-content-center" id="panel-tarjetas">
+        </div>
+    </div>
+
+    <script>
+       window.onload = function() {
+    // Jalamos los datos guardados al iniciar sesión
+    const nombre = localStorage.getItem('usuario_nombre') || 'Usuario';
+    let rol = (localStorage.getItem('usuario_rol') || localStorage.getItem('usuario_role_local') || 'cliente').toLowerCase().trim();
+
+    // Forzamos el saludo estético en minúsculas/normal
+    document.getElementById('nombre-usuario').innerText = nombre.toLowerCase();
+    
+    const panel = document.getElementById('panel-tarjetas');
+    let tarjetasHTML = '';
+
+    // Validación omnicanal para el Superusuario
+    if (rol.includes('admin') || nombre.toLowerCase().includes('admin')) {
+        
+        document.getElementById('rol-usuario').innerText = "ADMINISTRADOR CENTRAL";
+        document.getElementById('rol-usuario').className = "badge bg-danger text-uppercase px-3 py-2";
+
+        tarjetasHTML += `
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-primary" style="background: #1e293b;">
+                    <div class="fs-1 text-primary mb-3"><i class="bi bi-box-seam"></i></div>
+                    <h5 class="fw-bold text-white">Inventario / Módulos</h5>
+                    <p class="text-muted small">Control de stock de dispositivos GPS en almacén.</p>
+                    <a href="productos.html" class="btn btn-sm btn-outline-primary mt-auto">Gestionar</a>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-success" style="background: #1e293b;">
+                    <div class="fs-1 text-success mb-3"><i class="bi bi-cart-plus"></i></div>
+                    <h5 class="fw-bold text-white">Compras de Fábrica</h5>
+                    <p class="text-muted small">Abastecimiento e ingreso de nuevas placas de hardware.</p>
+                    <a href="compras.html" class="btn btn-sm btn-outline-success mt-auto">Ingresar</a>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-danger" style="background: #1e293b;">
+                    <div class="fs-1 text-danger mb-3"><i class="bi bi-cash-coin"></i></div>
+                    <h5 class="fw-bold text-white">Registrar Ventas</h5>
+                    <p class="text-muted small">Asignación de dispositivos físicos y activación del servicio GPS.</p>
+                    <a href="ventas.html" class="btn btn-sm btn-outline-danger mt-auto">Registrar Venta</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-warning" style="background: #1e293b;">
+                    <div class="fs-1 text-warning mb-3"><i class="bi bi-people-fill"></i></div>
+                    <h5 class="fw-bold text-white">Gestión de Usuarios</h5>
+                    <p class="text-muted small">Listado del sistema, control de roles y cuentas de estudiantes UAJMS.</p>
+                    <a href="usuarioslista.html" class="btn btn-sm btn-outline-warning mt-auto">Ver Usuarios</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-info" style="background: #1e293b;">
+                    <div class="fs-1 text-info mb-3"><i class="bi bi-radar"></i></div>
+                    <h5 class="fw-bold text-white">Innovación e IoT</h5>
+                    <p class="text-muted small">Estado de transmisión en tiempo real, telemetría y geocercas lógicas.</p>
+                    <a href="innovacion.html" class="btn btn-sm btn-info text-dark fw-bold mt-auto">Ver Consola</a>
+                </div>
+            </div>
+        `;
+    } else {
+        // CONDICIONAL ADICIONAL: VISTA EXCLUSIVA PARA EL ESTUDIANTE (USUARIO COMÚN)
+        document.getElementById('rol-usuario').innerText = "ESTUDIANTE / CLIENTE";
+        document.getElementById('rol-usuario').className = "badge bg-info text-uppercase px-3 py-2";
+
+        tarjetasHTML += `
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-warning" style="background: #1e293b;">
+                    <div class="fs-1 text-warning mb-3"><i class="bi bi-bicycle"></i></div>
+                    <h5 class="fw-bold text-white">Mi Motocicleta</h5>
+                    <p class="text-muted small">Registra o actualiza los datos oficiales de tu vehículo (Placa, Chasis, Color).</p>
+                    <a href="moto.html" class="btn btn-sm btn-outline-warning mt-auto">Gestionar Vehículo</a>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-success" style="background: #1e293b;">
+                    <div class="fs-1 text-success mb-3"><i class="bi bi-shield-check"></i></div>
+                    <h5 class="fw-bold text-white">Adquisición de Servicio</h5>
+                    <p class="text-muted small">Vincula un dispositivo de rastreo GPS activo a tu cuenta universitaria.</p>
+                    <a href="ventas.html" class="btn btn-sm btn-outline-success mt-auto">Activar GPS</a>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 rounded-3 text-center border-info" style="background: #1e293b;">
+                    <div class="fs-1 text-info mb-3"><i class="bi bi-radar"></i></div>
+                    <h5 class="fw-bold text-white">Innovación IoT</h5>
+                    <p class="text-muted small">Monitoreo satelital en tiempo real, geocercas lógicas y telemetría activa.</p>
+                    <a href="innovacion.html" class="btn btn-sm btn-info text-dark fw-bold mt-auto">Ver Consola</a>
+                </div>
+            </div>
+        `;
+    }
+
+    panel.innerHTML = tarjetasHTML;
+};
+
+// ==========================================
+// FUNCIÓN CORRECTA PARA CERRAR SESIÓN
+// ==========================================
+function cerrarSesion() {
+    localStorage.clear(); // Borra credenciales y roles guardados
+    window.location.href = "index.html"; // Redirección directa al login limpio
+}
+    </script>
+</body>
+</html>

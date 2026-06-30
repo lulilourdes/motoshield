@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShield IoT - Innovación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { background: #1e293b; border: 1px solid #334155; }
+        .list-group-item-custom { background: #1e293b; border: 1px solid #334155; color: #fff; transition: 0.2s; }
+        .list-group-item-custom:hover { background: #334155; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+   <nav style="background-color: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; margin-bottom: 40px;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="history.back()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Atrás">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <button onclick="history.forward()" style="background: transparent; border: 1px solid #475569; color: #f8fafc; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Siguiente">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+        <a href="menu.html" style="background-color: #3b82f6; color: white; padding: 6px 14px; border-radius: 4px; text-decoration: none;" title="Regresar al Menú Principal">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="compras.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Compras</a>
+        <a href="ventas.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Ventas</a>
+        <a href="productos.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Inventario</a>
+        <a href="innovacion.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Innovación</a>
+        <a href="usuarioslista.html" style="color: #f8fafc; text-decoration: none; font-size: 0.95rem; font-weight: 500;">Usuarios</a>
+        <a href="index.html" onclick="localStorage.clear()" style="background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
+</nav>
+    <div class="container-fluid px-4">
+        
+        <div id="seccion-admin" class="mb-4" style="display: none;">
+            <div class="card card-custom p-4 rounded-3">
+                <h4 class="fw-bold text-info mb-3"><i class="bi bi-building-gear"></i> Centro de Monitoreo Global (Administración)</h4>
+                <p class="text-muted small">Selecciona una motocicleta de la comunidad de la UAJMS para cargar su flujo de telemetría en tiempo real.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle m-0 text-center">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Estudiante / Propietario</th>
+                                <th>ID Hardware</th>
+                                <th>Estado GPS</th>
+                                <th>Última Coordenada</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-motos-activas">
+                            <tr onclick="cargarConsolaEspecifica('Lourdes Serrano', '-21.5284', '-64.7298')">
+                                <td class="fw-bold text-start text-warning ps-4"><i class="bi bi-person-circle"></i> lourdes</td>
+                                <td><span class="badge bg-secondary">GPS-001</span></td>
+                                <td><span class="badge bg-success"><i class="bi bi-broadcast"></i> EN CUMPLIMIENTO</span></td>
+                                <td class="small text-muted">-21.5284, -64.7298</td>
+                                <td><button class="btn btn-xs btn-info py-1 fw-bold text-dark">Monitorear</button></td>
+                            </tr>
+                            <tr onclick="cargarConsolaEspecifica('Juan Carlos', '-21.5342', '-64.7350')">
+                                <td class="fw-bold text-start text-warning ps-4"><i class="bi bi-person-circle"></i> juan carlos</td>
+                                <td><span class="badge bg-secondary">GPS-002</span></td>
+                                <td><span class="badge bg-success"><i class="bi bi-broadcast"></i> EN CUMPLIMIENTO</span></td>
+                                <td class="small text-muted">-21.5342, -64.7350</td>
+                                <td><button class="btn btn-xs btn-info py-1 fw-bold text-dark">Monitorear</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="contenedor-consola-iot">
+            
+            <div class="col-md-5">
+                <div class="card card-custom p-4 h-100 rounded-3">
+                    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-wifi"></i> Simulador de Hardware</h5>
+                    <p class="text-muted small">Modifica las variables físicas para simular el comportamiento del módulo GPS instalado.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-uppercase text-muted">Monitoreando a:</label>
+                        <input type="text" id="moto-propietario" class="form-control bg-dark text-white fw-bold border-0 text-capitalize" value="Mi Motocicleta" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Latitud Actual</label>
+                        <input type="text" id="latitud" class="form-control" value="-21.5284">
+                        <div class="form-text text-muted small">Centro UAJMS: -21.5284</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Longitud Actual</label>
+                        <input type="text" id="longitud" class="form-control" value="-64.7298">
+                        <div class="form-text text-muted small">Centro UAJMS: -64.7298</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small text-muted">Estado del Motor (Ignición)</label>
+                        <select id="ignicion" class="form-select bg-dark text-white border-secondary">
+                            <option value="0">Apagado</option>
+                            <option value="1" selected>Encendido</option>
+                        </select>
+                    </div>
+
+                    <button onclick="transmitirDatos()" class="btn btn-primary w-100 fw-bold mt-auto">
+                        <i class="bi bi-send-check-fill"></i> Transmitir Coordenadas a Python
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="card card-custom p-4 h-100 rounded-3">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-terminal-fill text-warning"></i> Consola de Tráfico GPRS</h5>
+                    <p class="text-muted small">Respuestas del algoritmo de geocercas procesadas por el servidor de MotoShield.</p>
+                    
+                    <textarea id="consola-logs" class="form-control bg-black text-success font-monospace p-3 border-0 rounded-3" rows="12" readonly style="resize: none;" placeholder="[Esperando transmisión de datos IoT...]"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const nombreSesion = localStorage.getItem('usuario_nombre') || 'Estudiante';
+            let rolSesion = (localStorage.getItem('usuario_rol') || localStorage.getItem('usuario_role_local') || 'cliente').toLowerCase().trim();
+            
+            const esAdmin = rolSesion.includes('admin') || nombreSesion.toLowerCase().includes('admin');
+            
+            if (esAdmin) {
+                // 1. Mostrar panel superior para el Admin
+                document.getElementById('seccion-admin').style.display = 'block';
+                // Ocultar consola inicialmente hasta que seleccione un cliente de la lista
+                document.getElementById('contenedor-consola-iot').style.style = 'none';
+                document.getElementById('moto-propietario').value = "Ninguno - Seleccione una Moto";
+            } else {
+                // 2. Si es estudiante, se salta la lista y directo ve su consola
+                document.getElementById('seccion-admin').style.display = 'none';
+                document.getElementById('moto-propietario').value = nombreSesion;
+                agregarLog("Consola inicializada de forma segura para la cuenta del estudiante: " + nombreSesion);
+            }
+        };
+
+        // Función que se activa al hacer clic en la tabla de administración
+        function cargarConsolaEspecifica(estudiante, lat, lng) {
+            document.getElementById('contenedor-consola-iot').style.display = 'flex'; // Despliega la consola
+            document.getElementById('moto-propietario').value = estudiante;
+            document.getElementById('latitud').value = lat;
+            document.getElementById('longitud').value = lng;
+            
+            // Limpiar y resetear logs
+            document.getElementById('consola-logs').value = "";
+            agregarLog("Conexión IoT establecida con éxito.");
+            agregarLog("Monitoreando transmisiones en tiempo real de: " + estudiante);
+            
+            // Scroll suave hacia la consola cargada
+            document.getElementById('contenedor-consola-iot').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function agregarLog(mensaje) {
+            const consola = document.getElementById('consola-logs');
+            const tiempoActual = new Date().toLocaleTimeString();
+            consola.value += `[${tiempoActual}] MOTOSHIELD_SERVER: ${mensaje}\n`;
+        }
+
+        function transmitirDatos() {
+            const lat = document.getElementById('latitud').value;
+            const lng = document.getElementById('longitud').value;
+            const moto = document.getElementById('moto-propietario').value;
+            const ignicion = document.getElementById('ignicion').value === "1" ? "ENCENDIDO" : "APAGADO";
+
+            agregarLog(`Enviando paquete GPRS -> Lat: ${lat} | Lng: ${lng} | Motor: ${ignicion}`);
+            
+            // Aquí pones tu fetch real a tu API en Python de Flask si lo deseas
+            agregarLog(`Respuesta del Backend Flask -> HTTP 200 OK - Geocerca validada para ${moto}.`);
+        }
+    </script>
+</body>
+</html>
